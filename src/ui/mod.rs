@@ -3,7 +3,6 @@ use crate::def::action::{Action, ActionType};
 use crate::def::component::ComponentType;
 use crate::def::container::{Container, ContainerOrientation};
 use gtk::gio::ActionEntry;
-use gtk::glib;
 use gtk::prelude::*;
 use gtk4 as gtk;
 use std::path::PathBuf;
