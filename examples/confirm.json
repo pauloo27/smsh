@@ -1,0 +1,35 @@
+{
+  "title": "SMSH: Confirm",
+  "container": {
+    "orientation": "Vertical",
+    "children": [
+      {
+        "type": "Label",
+        "text": "Are you sure?",
+        "tooltip": "Sure????"
+      },
+      {
+        "type": "Button",
+        "text": "Yes",
+        "tooltip": "Yes!",
+        "actions": [
+          {
+            "type": "ExitWithCode",
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "type": "Button",
+        "text": "No",
+        "tooltip": "No",
+        "actions": [
+          {
+            "type": "ExitWithCode",
+            "value": "1"
+          }
+        ]
+      }
+    ]
+  }
+}

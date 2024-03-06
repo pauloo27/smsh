@@ -1,0 +1,53 @@
+{
+  "title": "SMSH: Power",
+  "container": {
+    "orientation": "Vertical",
+    "children": [
+      {
+        "type": "Button",
+        "text": "",
+        "tooltip": "Shutdown",
+        "actions": [
+          {
+            "type": "Shell",
+            "value": "notify-send shutdown"
+          },
+          {
+            "type": "ExitWithCode",
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "type": "Button",
+        "text": "",
+        "tooltip": "Reboot",
+        "actions": [
+          {
+            "type": "Shell",
+            "value": "notify-send reboot"
+          },
+          {
+            "type": "ExitWithCode",
+            "value": "0"
+          }
+        ]
+      },
+      {
+        "type": "Button",
+        "text": "󰗽",
+        "tooltip": "Logout",
+        "actions": [
+          {
+            "type": "Shell",
+            "value": "notify-send logout"
+          },
+          {
+            "type": "ExitWithCode",
+            "value": "0"
+          }
+        ]
+      }
+    ]
+  }
+}
