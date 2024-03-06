@@ -6,5 +6,6 @@ use std::process;
 
 fn main() {
     let options = ui::AppOptions::from_args();
-    process::exit(ui::run(options).into());
+    ui::run(options);
+    process::exit(1); // exit with error as default
 }

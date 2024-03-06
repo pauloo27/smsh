@@ -15,7 +15,7 @@ pub use options::*;
 
 const APP_ID: &str = "ndo.cafe.ListActions";
 
-pub fn run(options: AppOptions) -> glib::ExitCode {
+pub fn run(options: AppOptions) {
     let app = gtk::Application::builder().application_id(APP_ID).build();
     let options_rc = Rc::new(options);
 
@@ -24,7 +24,7 @@ pub fn run(options: AppOptions) -> glib::ExitCode {
     });
 
     let args: [String; 0] = [];
-    app.run_with_args(&args)
+    app.run_with_args(&args);
 }
 
 fn setup_ui(app: &gtk::Application, options: Rc<AppOptions>) {
