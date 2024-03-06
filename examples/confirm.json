@@ -1,5 +1,7 @@
 {
   "title": "SMSH: Confirm",
+  "enable_vim_keys": true,
+  "enable_esc_as_exit": true,
   "container": {
     "orientation": "Vertical",
     "children": [

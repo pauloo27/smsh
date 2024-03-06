@@ -1,0 +1,24 @@
+{
+  "title": "SMSH: Prompt",
+  "enable_esc_as_exit": true,
+  "container": {
+    "orientation": "Horizontal",
+    "children": [
+      {
+        "type": "Entry",
+        "text": "",
+        "tooltip": "Type here",
+        "actions": [
+          {
+            "type": "PrintValueToStdOut",
+            "value": ""
+          },
+          {
+            "type": "ExitWithCode",
+            "value": "0"
+          }
+        ]
+      }
+    ]
+  }
+}

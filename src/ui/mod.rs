@@ -57,13 +57,29 @@ fn setup_ui(app: &gtk::Application, options: Rc<AppOptions>) {
 
     let window = window_builder.build();
 
-    add_keyboard_actions(&app, &window);
+    if win_def.enable_vim_keys.unwrap_or(false) {
+        add_vim_keyboard_actions(&app, &window);
+    }
+    if win_def.enable_esc_as_exit.unwrap_or(false) {
+        add_esc_keyboard_action(&app, &window);
+    }
 
     window.present();
 }
 
-fn add_keyboard_actions(app: &gtk::Application, window: &gtk::ApplicationWindow) {
-    let action_close = ActionEntry::builder("close")
+fn add_esc_keyboard_action(app: &gtk::Application, window: &gtk::ApplicationWindow) {
+    let action_close = ActionEntry::builder("esc_close")
+        .activate(|window: &gtk::ApplicationWindow, _, _| {
+            window.close();
+        })
+        .build();
+
+    window.add_action_entries([action_close]);
+    app.set_accels_for_action("win.esc_close", &["Escape"]);
+}
+
+fn add_vim_keyboard_actions(app: &gtk::Application, window: &gtk::ApplicationWindow) {
+    let action_close = ActionEntry::builder("q_close")
         .activate(|window: &gtk::ApplicationWindow, _, _| {
             window.close();
         })
@@ -101,7 +117,7 @@ fn add_keyboard_actions(app: &gtk::Application, window: &gtk::ApplicationWindow)
         action_right,
     ]);
 
-    app.set_accels_for_action("win.close", &["q", "Escape"]);
+    app.set_accels_for_action("win.q_close", &["q"]);
     app.set_accels_for_action("win.up", &["k"]);
     app.set_accels_for_action("win.down", &["j"]);
     app.set_accels_for_action("win.left", &["h"]);
@@ -144,6 +160,20 @@ fn build_container(container_def: Container) -> gtk::Box {
 
                 container.append(&lbl)
             }
+            ComponentType::Entry => {
+                let entry = gtk::Entry::builder()
+                    .tooltip_text(component.tooltip)
+                    .text(component.text)
+                    .build();
+
+                if let Some(actions) = component.actions {
+                    entry.connect_activate(move |entry| {
+                        call_actions(&actions, entry.text().to_string());
+                    });
+                }
+
+                container.append(&entry)
+            }
             ComponentType::Button => {
                 let btn = gtk::Button::builder()
                     .tooltip_text(component.tooltip)
@@ -151,7 +181,9 @@ fn build_container(container_def: Container) -> gtk::Box {
                     .build();
 
                 if let Some(actions) = component.actions {
-                    add_actions_handler(btn.clone(), actions);
+                    btn.connect_clicked(move |_| {
+                        call_actions(&actions, "".to_string());
+                    });
                 }
 
                 container.append(&btn)
@@ -162,22 +194,23 @@ fn build_container(container_def: Container) -> gtk::Box {
     container
 }
 
-fn add_actions_handler(btn: gtk::Button, actions: Vec<Action>) {
-    btn.connect_clicked(move |_| {
-        for action in &actions {
-            match action.r#type {
-                ActionType::ExitWithCode => {
-                    let code: i32 = action.value.parse().expect("Invalid status code");
-                    process::exit(code);
-                }
-                ActionType::Shell => {
-                    let _ = process::Command::new("env")
-                        .arg("sh")
-                        .arg("-c")
-                        .arg(action.value.as_str())
-                        .spawn();
-                }
+fn call_actions(actions: &Vec<Action>, value: String) {
+    for action in actions {
+        match action.r#type {
+            ActionType::PrintValueToStdOut => {
+                println!("{value}");
+            }
+            ActionType::ExitWithCode => {
+                let code: i32 = action.value.parse().expect("Invalid status code");
+                process::exit(code);
+            }
+            ActionType::Shell => {
+                let _ = process::Command::new("env")
+                    .arg("sh")
+                    .arg("-c")
+                    .arg(action.value.as_str())
+                    .spawn();
             }
         }
-    });
+    }
 }

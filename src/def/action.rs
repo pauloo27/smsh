@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub enum ActionType {
     Shell,
     ExitWithCode,
+    PrintValueToStdOut,
 }
 
 #[derive(Serialize, Deserialize)]

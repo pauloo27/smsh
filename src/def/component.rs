@@ -6,6 +6,7 @@ use super::action::Action;
 pub enum ComponentType {
     Label,
     Button,
+    Entry,
 }
 
 #[derive(Serialize, Deserialize)]
