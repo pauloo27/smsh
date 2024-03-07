@@ -2,7 +2,7 @@ use super::parser;
 use crate::def::action::{Action, ActionType};
 use crate::def::component::ComponentType;
 use crate::def::container::{Container, ContainerOrientation};
-use gtk::gio::ActionEntry;
+use gtk::gio::{self, ActionEntry};
 use gtk::prelude::*;
 use gtk4 as gtk;
 use std::path::PathBuf;
@@ -15,7 +15,10 @@ pub use options::*;
 const APP_ID: &str = "ndo.cafe.ListActions";
 
 pub fn run(options: AppOptions) {
-    let app = gtk::Application::builder().application_id(APP_ID).build();
+    let app = gtk::Application::builder()
+        .flags(gio::ApplicationFlags::NON_UNIQUE)
+        .application_id(APP_ID)
+        .build();
     let options_rc = Rc::new(options);
 
     app.connect_activate(move |app| {
