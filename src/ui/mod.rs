@@ -61,10 +61,10 @@ fn setup_ui(app: &gtk::Application, options: Rc<AppOptions>) {
     let window = window_builder.build();
 
     if win_def.enable_vim_keys.unwrap_or(false) {
-        add_vim_keyboard_actions(&app, &window);
+        add_vim_keyboard_actions(app, &window);
     }
     if win_def.enable_esc_as_exit.unwrap_or(false) {
-        add_esc_keyboard_action(&app, &window);
+        add_esc_keyboard_action(app, &window);
     }
 
     window.present();
