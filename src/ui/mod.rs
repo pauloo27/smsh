@@ -12,7 +12,7 @@ use std::{fs, process};
 mod options;
 pub use options::*;
 
-const APP_ID: &str = "ndo.cafe.ListActions";
+const APP_ID: &str = "cafe.ndo.SMSH";
 
 pub fn run(options: AppOptions) {
     let app = gtk::Application::builder()
