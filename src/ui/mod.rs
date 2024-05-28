@@ -2,13 +2,14 @@ use super::parser;
 use crate::def::action::{Action, ActionType};
 use crate::def::component::ComponentType;
 use crate::def::container::{Container, ContainerOrientation};
-use gtk::gio::{self, ActionEntry};
+use gtk::gio::{self};
 use gtk::prelude::*;
 use gtk4 as gtk;
-use std::path::PathBuf;
+use std::process;
 use std::rc::Rc;
-use std::{fs, process};
 
+mod css;
+mod keybinds;
 mod options;
 pub use options::*;
 
@@ -41,7 +42,7 @@ fn setup_ui(app: &gtk::Application, options: Rc<AppOptions>) {
         }
     };
     if let Some(css_file) = css_file {
-        load_css_from_file(css_file.into());
+        css::load_css_from_file(css_file.into());
     }
 
     let container = build_container(win_def.container);
@@ -61,88 +62,13 @@ fn setup_ui(app: &gtk::Application, options: Rc<AppOptions>) {
     let window = window_builder.build();
 
     if win_def.enable_vim_keys.unwrap_or(false) {
-        add_vim_keyboard_actions(app, &window);
+        keybinds::add_vim_keyboard_actions(app, &window);
     }
     if win_def.enable_esc_as_exit.unwrap_or(false) {
-        add_esc_keyboard_action(app, &window);
+        keybinds::add_esc_keyboard_action(app, &window);
     }
 
     window.present();
-}
-
-fn add_esc_keyboard_action(app: &gtk::Application, window: &gtk::ApplicationWindow) {
-    let action_close = ActionEntry::builder("esc_close")
-        .activate(|window: &gtk::ApplicationWindow, _, _| {
-            window.close();
-        })
-        .build();
-
-    window.add_action_entries([action_close]);
-    app.set_accels_for_action("win.esc_close", &["Escape"]);
-}
-
-fn add_vim_keyboard_actions(app: &gtk::Application, window: &gtk::ApplicationWindow) {
-    let action_close = ActionEntry::builder("q_close")
-        .activate(|window: &gtk::ApplicationWindow, _, _| {
-            window.close();
-        })
-        .build();
-
-    let action_up = ActionEntry::builder("up")
-        .activate(|window: &gtk::ApplicationWindow, _, _| {
-            window.child_focus(gtk::DirectionType::Up);
-        })
-        .build();
-
-    let action_down = ActionEntry::builder("down")
-        .activate(|window: &gtk::ApplicationWindow, _, _| {
-            window.child_focus(gtk::DirectionType::Down);
-        })
-        .build();
-
-    let action_left = ActionEntry::builder("left")
-        .activate(|window: &gtk::ApplicationWindow, _, _| {
-            window.child_focus(gtk::DirectionType::Left);
-        })
-        .build();
-
-    let action_right = ActionEntry::builder("right")
-        .activate(|window: &gtk::ApplicationWindow, _, _| {
-            window.child_focus(gtk::DirectionType::Right);
-        })
-        .build();
-
-    window.add_action_entries([
-        action_close,
-        action_up,
-        action_down,
-        action_left,
-        action_right,
-    ]);
-
-    app.set_accels_for_action("win.q_close", &["q"]);
-    app.set_accels_for_action("win.up", &["k"]);
-    app.set_accels_for_action("win.down", &["j"]);
-    app.set_accels_for_action("win.left", &["h"]);
-    app.set_accels_for_action("win.right", &["l"]);
-}
-
-fn load_css_from_file(path: PathBuf) {
-    let provider = gtk::CssProvider::new();
-    let data = match fs::read_to_string(path) {
-        Ok(data) => data,
-        Err(err) => {
-            eprintln!("Faile to load css file {err}");
-            process::exit(1);
-        }
-    };
-    provider.load_from_data(&data);
-
-    gtk::style_context_add_provider_for_display(
-        &gtk::gdk::Display::default().expect("Could not connect to a display."),
-        &provider,
-        gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
-    );
 }
 
 fn build_container(container_def: Container) -> gtk::Box {
