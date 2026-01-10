@@ -1,11 +1,12 @@
-mod def;
-mod parser;
-mod ui;
-
-use std::process;
+use mlua::Lua;
 
 fn main() {
-    let options = ui::AppOptions::from_args();
-    ui::run(options);
-    process::exit(1); // exit with error as default
+    let lua = Lua::new();
+    let c = lua.load(
+        r#"
+        return _VERSION
+        "#,
+    );
+    let res = c.eval::<String>().expect("lower your expectations");
+    println!("{}", res);
 }
