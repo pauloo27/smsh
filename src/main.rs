@@ -1,39 +1,24 @@
-use std::collections::HashMap;
+use crate::ui::UI;
+use std::path::PathBuf;
 
-use mlua::{Function, Lua};
+mod lua;
+mod schema;
+mod ui;
 
 fn main() {
-    let lua = Lua::new();
-    let globals = lua.globals();
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() < 2 {
+        eprintln!("Usage: {} <lua_path> [css_path]", args[0]);
+        std::process::exit(1);
+    }
 
-    let ffff = lua
-        .create_function(|_, dict: HashMap<String, Function>| {
-            println!("i have been called with {dict:?}");
-            let cb = dict.get("cb").unwrap();
-            cb.call::<()>(()).unwrap();
-            Ok(())
-        })
-        .expect("Fn");
+    let lua_path = &args[1];
+    let css_path = args.get(2).map(PathBuf::from);
 
-    globals.set("window", ffff).expect("ffff");
+    let ui = UI::new(css_path);
 
-    let c = lua.load(
-        r#"
-        window {
-            title = "bar";
-            cb = function()
-                print(_VERSION)
-            end
-        }
-        "#,
-    );
+    let lua_env = lua::LuaEnv::new(&ui).expect("Failed to create lua env");
+    lua_env.run_file(lua_path).expect("Failed to run lua file");
 
-    c.exec().unwrap();
-
-    /*
-    let res = c
-        .eval::<HashMap<String, String>>()
-        .expect("lower your expectations");
-    println!("{:?}", res);
-    */
+    ui.run();
 }
