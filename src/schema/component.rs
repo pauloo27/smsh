@@ -35,16 +35,16 @@ impl FromLua for ContainerOrientation {
 pub enum Component {
     Label {
         text: String,
-        tooltip: String,
+        tooltip: Option<String>,
     },
     Button {
         text: String,
-        tooltip: String,
+        tooltip: Option<String>,
         action: Option<Action>,
     },
     Entry {
         text: String,
-        tooltip: String,
+        tooltip: Option<String>,
         action: Option<Action>,
     },
     Container {
@@ -62,12 +62,12 @@ impl FromLua for Component {
                 match type_str.as_str() {
                     "label" => {
                         let text: String = t.get("text")?;
-                        let tooltip: String = t.get("tooltip").unwrap_or_default();
+                        let tooltip: Option<String> = t.get("tooltip").ok();
                         Ok(Component::Label { text, tooltip })
                     }
                     "button" => {
                         let text: String = t.get("text")?;
-                        let tooltip: String = t.get("tooltip").unwrap_or_default();
+                        let tooltip: Option<String> = t.get("tooltip").ok();
                         let action: Option<Action> = t.get("action").ok();
                         Ok(Component::Button {
                             text,
@@ -77,7 +77,7 @@ impl FromLua for Component {
                     }
                     "entry" => {
                         let text: String = t.get("text")?;
-                        let tooltip: String = t.get("tooltip").unwrap_or_default();
+                        let tooltip: Option<String> = t.get("tooltip").ok();
                         let action: Option<Action> = t.get("action").ok();
                         Ok(Component::Entry {
                             text,

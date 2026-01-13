@@ -6,10 +6,11 @@ use crate::schema::{Component, ContainerOrientation};
 pub(super) fn build_component(component: Component) -> gtk::Widget {
     match component {
         Component::Label { text, tooltip } => {
-            let lbl = gtk::Label::builder()
-                .tooltip_text(tooltip)
-                .label(text)
-                .build();
+            let mut builder = gtk::Label::builder().label(text);
+            if let Some(tip) = tooltip {
+                builder = builder.tooltip_text(tip);
+            }
+            let lbl = builder.build();
             lbl.upcast()
         }
         Component::Button {
@@ -17,10 +18,11 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
             tooltip,
             action,
         } => {
-            let btn = gtk::Button::builder()
-                .tooltip_text(tooltip)
-                .label(text)
-                .build();
+            let mut builder = gtk::Button::builder().label(text);
+            if let Some(tip) = tooltip {
+                builder = builder.tooltip_text(tip);
+            }
+            let btn = builder.build();
 
             if let Some(action) = action {
                 btn.connect_clicked(move |_| {
@@ -35,10 +37,11 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
             tooltip,
             action,
         } => {
-            let entry = gtk::Entry::builder()
-                .tooltip_text(tooltip)
-                .text(text)
-                .build();
+            let mut builder = gtk::Entry::builder().text(text);
+            if let Some(tip) = tooltip {
+                builder = builder.tooltip_text(tip);
+            }
+            let entry = builder.build();
 
             if let Some(action) = action {
                 entry.connect_activate(move |entry| {
