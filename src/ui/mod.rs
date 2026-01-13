@@ -5,7 +5,7 @@ use std::rc::Rc;
 use std::sync::mpsc::{Sender, channel};
 use std::time::Duration;
 
-use crate::schema::Window;
+use crate::schema::{UICommands, Window};
 
 mod action;
 mod component;
@@ -16,7 +16,7 @@ const APP_ID: &str = "cafe.ndo.SMSH";
 
 pub struct UI {
     app: gtk::Application,
-    sender: Sender<Window>,
+    sender: Sender<UICommands>,
 }
 
 impl UI {
@@ -26,7 +26,7 @@ impl UI {
             .application_id(APP_ID)
             .build();
 
-        let (sender, receiver) = channel::<Window>();
+        let (sender, receiver) = channel::<UICommands>();
         let rx = Rc::new(receiver);
 
         let app_clone = app.clone();
@@ -46,7 +46,7 @@ impl UI {
         Self { app, sender }
     }
 
-    pub fn get_sender(&self) -> Sender<Window> {
+    pub fn get_sender(&self) -> Sender<UICommands> {
         self.sender.clone()
     }
 
@@ -91,21 +91,30 @@ impl UI {
     }
 }
 
-fn setup_window_handler(rx: Rc<std::sync::mpsc::Receiver<Window>>, app: gtk::Application) {
+fn setup_window_handler(rx: Rc<std::sync::mpsc::Receiver<UICommands>>, app: gtk::Application) {
     let hold = app.hold();
     glib::idle_add_local(move || {
         let _hold = &hold;
         match rx.recv_timeout(Duration::from_millis(10)) {
-            Ok(window) => {
+            Ok(command) => {
                 let ui = UI {
                     app: app.clone(),
                     sender: channel().0, // Dummy sender, not used here
                 };
-                ui.new_window(window);
+                match command {
+                    UICommands::NewWindow(window) => {
+                        ui.new_window(window);
+                    }
+                    UICommands::LoadCSS(path) => {
+                        if let Err(e) = ui.load_css_from_file(path) {
+                            eprintln!("Failed to load CSS: {}", e);
+                        }
+                    }
+                }
             }
             Err(std::sync::mpsc::RecvTimeoutError::Timeout) => (),
             Err(err) => {
-                eprintln!("Failed to recv window from channel: {:?}", err);
+                eprintln!("Failed to recv command from channel: {:?}", err);
             }
         }
         glib::ControlFlow::Continue

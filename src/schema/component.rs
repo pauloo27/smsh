@@ -1,7 +1,7 @@
 use super::action::Action;
 use mlua::{FromLua, Lua, Value};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ContainerOrientation {
     Vertical,
     Horizontal,
@@ -31,7 +31,7 @@ impl FromLua for ContainerOrientation {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Component {
     Label {
         text: String,

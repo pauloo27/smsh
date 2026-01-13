@@ -11,6 +11,8 @@ impl UI {
         let data = fs::read_to_string(&path)
             .map_err(|e| anyhow::anyhow!("Failed to load CSS file {:?}: {}", path, e))?;
 
+        println!("{data}");
+
         provider.load_from_data(&data);
 
         gtk::style_context_add_provider_for_display(

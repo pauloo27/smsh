@@ -1,7 +1,7 @@
 use super::component::Component;
 use mlua::{FromLua, Lua, Value};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Window {
     pub title: String,
     pub width: Option<i32>,

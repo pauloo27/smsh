@@ -1,6 +1,6 @@
 use mlua::{FromLua, Function, Lua, Value};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Action {
     Shell(String),
     ExitWithCode(String),
