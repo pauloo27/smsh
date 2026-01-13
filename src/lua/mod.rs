@@ -1,7 +1,6 @@
 use anyhow::Result as AnyResult;
 use mlua::Lua;
 use std::path::{Path, PathBuf};
-use std::sync::mpsc::Sender;
 
 use crate::{
     schema::{UICommands, Window},
@@ -10,7 +9,6 @@ use crate::{
 
 pub struct LuaEnv {
     lua: Lua,
-    sender: Sender<UICommands>,
 }
 
 fn get_config_dir() -> PathBuf {
@@ -40,11 +38,12 @@ impl LuaEnv {
         .map_err(|e| anyhow::anyhow!("Failed to set package.path: {}", e))?;
 
         let sender = ui.get_sender();
-        let sender_clone = sender.clone();
+        let sender_window = sender.clone();
+        let sender_css = sender.clone();
 
         let window_fn = lua
             .create_function(move |_, window: Window| {
-                sender
+                sender_window
                     .send(UICommands::NewWindow(window))
                     .map_err(|_| mlua::Error::runtime("Failed to send window to UI thread"))?;
                 Ok(())
@@ -64,7 +63,7 @@ impl LuaEnv {
                     config_dir_clone.join(path_buf)
                 };
 
-                sender_clone
+                sender_css
                     .send(UICommands::LoadCSS(final_path))
                     .map_err(|_| {
                         mlua::Error::runtime("Failed to send load_css command to UI thread")
@@ -81,10 +80,7 @@ impl LuaEnv {
             .set("load_css", load_css_fn)
             .map_err(|e| anyhow::anyhow!("Failed to set load_css global: {}", e))?;
 
-        Ok(Self {
-            lua,
-            sender: ui.get_sender(),
-        })
+        Ok(Self { lua })
     }
 
     pub fn run_file<P: AsRef<Path>>(&self, path: P) -> AnyResult<()> {

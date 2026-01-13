@@ -18,10 +18,9 @@ local function confirm(title, message)
 					text = "Yes",
 					tooltip = "Yes!",
 					actions = {
-						{
-							type = "exit_with_code",
-							value = "0",
-						},
+						function(value)
+							os.exit(0)
+						end,
 					},
 				},
 				{
@@ -29,10 +28,9 @@ local function confirm(title, message)
 					text = "No",
 					tooltip = "No!",
 					actions = {
-						{
-							type = "exit_with_code",
-							value = "1",
-						},
+						function(value)
+							os.exit(1)
+						end,
 					},
 				},
 			},

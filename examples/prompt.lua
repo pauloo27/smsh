@@ -11,14 +11,10 @@ window({
 				text = "",
 				tooltip = "Type here",
 				actions = {
-					{
-						type = "print_value_to_stdout",
-						value = "",
-					},
-					{
-						type = "exit_with_code",
-						value = "0",
-					},
+					function(value)
+						print(value)
+						os.exit(0)
+					end,
 				},
 			},
 		},
