@@ -74,8 +74,9 @@ impl UI {
         }
 
         if win_def.exit_on_close.unwrap_or(false) {
-            window.connect_close_request(|_| {
-                std::process::exit(0);
+            let exit_code = win_def.exit_code.unwrap_or(1);
+            window.connect_close_request(move |_| {
+                std::process::exit(exit_code);
             });
         }
 

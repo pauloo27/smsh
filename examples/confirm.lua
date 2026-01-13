@@ -17,21 +17,17 @@ local function confirm(title, message)
 					type = "button",
 					text = "Yes",
 					tooltip = "Yes!",
-					actions = {
-						function(value)
-							os.exit(0)
-						end,
-					},
+					action = function()
+						os.exit(0)
+					end,
 				},
 				{
 					type = "button",
 					text = "No",
 					tooltip = "No!",
-					actions = {
-						function(value)
-							os.exit(1)
-						end,
-					},
+					action = function(value)
+						os.exit(1)
+					end,
 				},
 			},
 		},

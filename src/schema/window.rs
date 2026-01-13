@@ -11,6 +11,7 @@ pub struct Window {
     pub enable_esc_as_exit: Option<bool>,
     pub present: Option<bool>,
     pub exit_on_close: Option<bool>,
+    pub exit_code: Option<i32>,
 }
 
 impl FromLua for Window {
@@ -25,6 +26,7 @@ impl FromLua for Window {
                 let enable_esc_as_exit = t.get("enable_esc_as_exit").ok();
                 let present = t.get("present").ok();
                 let exit_on_close = t.get("exit_on_close").ok();
+                let exit_code = t.get("exit_code").ok();
 
                 Ok(Window {
                     title,
@@ -35,6 +37,7 @@ impl FromLua for Window {
                     enable_esc_as_exit,
                     present,
                     exit_on_close,
+                    exit_code,
                 })
             }
             _ => Err(mlua::Error::FromLuaConversionError {
