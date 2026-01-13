@@ -40,12 +40,12 @@ pub enum Component {
     Button {
         text: String,
         tooltip: String,
-        actions: Option<Vec<Action>>,
+        action: Option<Action>,
     },
     Entry {
         text: String,
         tooltip: String,
-        actions: Option<Vec<Action>>,
+        action: Option<Action>,
     },
     Container {
         orientation: ContainerOrientation,
@@ -68,21 +68,21 @@ impl FromLua for Component {
                     "button" => {
                         let text: String = t.get("text")?;
                         let tooltip: String = t.get("tooltip").unwrap_or_default();
-                        let actions: Option<Vec<Action>> = t.get("actions").ok();
+                        let action: Option<Action> = t.get("action").ok();
                         Ok(Component::Button {
                             text,
                             tooltip,
-                            actions,
+                            action,
                         })
                     }
                     "entry" => {
                         let text: String = t.get("text")?;
                         let tooltip: String = t.get("tooltip").unwrap_or_default();
-                        let actions: Option<Vec<Action>> = t.get("actions").ok();
+                        let action: Option<Action> = t.get("action").ok();
                         Ok(Component::Entry {
                             text,
                             tooltip,
-                            actions,
+                            action,
                         })
                     }
                     "container" => {

@@ -1,10 +1,7 @@
 use gtk::prelude::*;
 use gtk4 as gtk;
 
-use crate::{
-    schema::{Component, ContainerOrientation},
-    ui::action::call_actions,
-};
+use crate::schema::{Component, ContainerOrientation};
 
 pub(super) fn build_component(component: Component) -> gtk::Widget {
     match component {
@@ -18,16 +15,16 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
         Component::Button {
             text,
             tooltip,
-            actions,
+            action,
         } => {
             let btn = gtk::Button::builder()
                 .tooltip_text(tooltip)
                 .label(text)
                 .build();
 
-            if let Some(actions) = actions {
+            if let Some(action) = action {
                 btn.connect_clicked(move |_| {
-                    call_actions(&actions, "".to_string());
+                    let _ = action.callback.call::<()>("".to_string());
                 });
             }
 
@@ -36,16 +33,16 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
         Component::Entry {
             text,
             tooltip,
-            actions,
+            action,
         } => {
             let entry = gtk::Entry::builder()
                 .tooltip_text(tooltip)
                 .text(text)
                 .build();
 
-            if let Some(actions) = actions {
+            if let Some(action) = action {
                 entry.connect_activate(move |entry| {
-                    call_actions(&actions, entry.text().to_string());
+                    let _ = action.callback.call::<()>(entry.text().to_string());
                 });
             }
 

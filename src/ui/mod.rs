@@ -7,7 +7,6 @@ use std::time::Duration;
 
 use crate::schema::{UICommands, Window};
 
-mod action;
 mod component;
 mod css;
 mod keybinds;
