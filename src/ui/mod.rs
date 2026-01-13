@@ -51,7 +51,7 @@ impl UI {
     }
 
     fn new_window(&self, win_def: Window) {
-        let root_widget = self.build_component(win_def.root);
+        let root_widget = component::build_component(win_def.root);
 
         let mut window_builder = gtk::ApplicationWindow::builder()
             .application(&self.app)

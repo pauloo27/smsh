@@ -30,12 +30,9 @@ impl LuaEnv {
         let config_dir = get_config_dir();
         let config_dir_str = config_dir.to_string_lossy();
         let package_path = format!("{}/?.lua;{}/?/init.lua;", config_dir_str, config_dir_str);
-        lua.load(&format!(
-            "package.path = '{}' .. package.path",
-            package_path
-        ))
-        .exec()
-        .map_err(|e| anyhow::anyhow!("Failed to set package.path: {}", e))?;
+        lua.load(format!("package.path = '{}' .. package.path", package_path))
+            .exec()
+            .map_err(|e| anyhow::anyhow!("Failed to set package.path: {}", e))?;
 
         let sender = ui.get_sender();
         let sender_window = sender.clone();
