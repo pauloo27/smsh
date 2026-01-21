@@ -2,7 +2,7 @@ mod action;
 mod component;
 mod window;
 
-pub use component::{Component, ContainerOrientation};
+pub use component::{Align, Component, ContainerOrientation};
 pub use window::Window;
 
 use std::path::PathBuf;

@@ -2,6 +2,40 @@ use super::action::Action;
 use mlua::{FromLua, Lua, Value};
 
 #[derive(Debug, Clone)]
+pub enum Align {
+    Start,
+    Center,
+    End,
+    Fill,
+}
+
+impl FromLua for Align {
+    fn from_lua(value: Value, _: &Lua) -> mlua::Result<Self> {
+        match value {
+            Value::String(s) => {
+                let str_val = s.to_str()?.to_string();
+                match str_val.as_str() {
+                    "start" => Ok(Align::Start),
+                    "center" => Ok(Align::Center),
+                    "end" => Ok(Align::End),
+                    "fill" => Ok(Align::Fill),
+                    _ => Err(mlua::Error::FromLuaConversionError {
+                        from: "string",
+                        to: "Align".to_string(),
+                        message: Some(format!("unknown alignment: {}", str_val)),
+                    }),
+                }
+            }
+            _ => Err(mlua::Error::FromLuaConversionError {
+                from: value.type_name(),
+                to: "Align".to_string(),
+                message: Some("expected string".to_string()),
+            }),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum ContainerOrientation {
     Vertical,
     Horizontal,
@@ -47,8 +81,17 @@ pub enum Component {
         tooltip: Option<String>,
         action: Option<Action>,
     },
+    ToggleButton {
+        text: String,
+        tooltip: Option<String>,
+        active: bool,
+        group: Option<String>,
+        action: Option<Action>,
+    },
     Container {
         orientation: ContainerOrientation,
+        halign: Option<Align>,
+        valign: Option<Align>,
         children: Vec<Component>,
     },
 }
@@ -85,11 +128,29 @@ impl FromLua for Component {
                             action,
                         })
                     }
+                    "togglebutton" => {
+                        let text: String = t.get("text")?;
+                        let tooltip: Option<String> = t.get("tooltip").ok();
+                        let active: bool = t.get("active").unwrap_or(false);
+                        let group: Option<String> = t.get("group").ok();
+                        let action: Option<Action> = t.get("action").ok();
+                        Ok(Component::ToggleButton {
+                            text,
+                            tooltip,
+                            active,
+                            group,
+                            action,
+                        })
+                    }
                     "container" => {
                         let orientation: ContainerOrientation = t.get("orientation")?;
+                        let halign: Option<Align> = t.get("halign").ok();
+                        let valign: Option<Align> = t.get("valign").ok();
                         let children: Vec<Component> = t.get("children")?;
                         Ok(Component::Container {
                             orientation,
+                            halign,
+                            valign,
                             children,
                         })
                     }
