@@ -70,6 +70,7 @@ pub struct ContainerData {
     pub orientation: ContainerOrientation,
     pub halign: Option<Align>,
     pub valign: Option<Align>,
+    pub classes: Option<Vec<String>>,
 }
 
 impl FromLua for ContainerData {
@@ -79,10 +80,12 @@ impl FromLua for ContainerData {
                 let orientation: ContainerOrientation = t.get("orientation")?;
                 let halign: Option<Align> = t.get("halign").ok();
                 let valign: Option<Align> = t.get("valign").ok();
+                let classes: Option<Vec<String>> = t.get("classes").ok();
                 Ok(ContainerData {
                     orientation,
                     halign,
                     valign,
+                    classes,
                 })
             }
             _ => Err(mlua::Error::FromLuaConversionError {
@@ -99,6 +102,7 @@ pub struct ToggleButtonData {
     pub text: String,
     pub tooltip: Option<String>,
     pub active: bool,
+    pub classes: Option<Vec<String>>,
     pub action: Option<Action>,
 }
 
@@ -109,11 +113,13 @@ impl FromLua for ToggleButtonData {
                 let text: String = t.get("text")?;
                 let tooltip: Option<String> = t.get("tooltip").ok();
                 let active: bool = t.get("active").unwrap_or(false);
+                let classes: Option<Vec<String>> = t.get("classes").ok();
                 let action: Option<Action> = t.get("action").ok();
                 Ok(ToggleButtonData {
                     text,
                     tooltip,
                     active,
+                    classes,
                     action,
                 })
             }
@@ -131,15 +137,18 @@ pub enum Component {
     Label {
         text: String,
         tooltip: Option<String>,
+        classes: Option<Vec<String>>,
     },
     Button {
         text: String,
         tooltip: Option<String>,
+        classes: Option<Vec<String>>,
         action: Option<Action>,
     },
     Entry {
         text: String,
         tooltip: Option<String>,
+        classes: Option<Vec<String>>,
         action: Option<Action>,
     },
     ToggleButton(ToggleButtonData),
@@ -163,25 +172,34 @@ impl FromLua for Component {
                     "label" => {
                         let text: String = t.get("text")?;
                         let tooltip: Option<String> = t.get("tooltip").ok();
-                        Ok(Component::Label { text, tooltip })
+                        let classes: Option<Vec<String>> = t.get("classes").ok();
+                        Ok(Component::Label {
+                            text,
+                            tooltip,
+                            classes,
+                        })
                     }
                     "button" => {
                         let text: String = t.get("text")?;
                         let tooltip: Option<String> = t.get("tooltip").ok();
+                        let classes: Option<Vec<String>> = t.get("classes").ok();
                         let action: Option<Action> = t.get("action").ok();
                         Ok(Component::Button {
                             text,
                             tooltip,
+                            classes,
                             action,
                         })
                     }
                     "entry" => {
                         let text: String = t.get("text")?;
                         let tooltip: Option<String> = t.get("tooltip").ok();
+                        let classes: Option<Vec<String>> = t.get("classes").ok();
                         let action: Option<Action> = t.get("action").ok();
                         Ok(Component::Entry {
                             text,
                             tooltip,
+                            classes,
                             action,
                         })
                     }

@@ -1,30 +1,60 @@
 ---@alias ContainerOrientation "vertical"|"horizontal"
+---@alias Align "start"|"center"|"end"|"fill"
 
 ---@class Action : fun(value: any)
 
 ---@class Component
----@field type "label"|"button"|"entry"|"container"
+---@field type "label"|"button"|"entry"|"togglebutton"|"togglebuttongroup"|"container"
 
 ---@class LabelComponent : Component
 ---@field type "label"
 ---@field text string
 ---@field tooltip? string
+---@field classes? string[]
 
 ---@class ButtonComponent : Component
 ---@field type "button"
 ---@field text string
 ---@field tooltip? string
+---@field classes? string[]
 ---@field action? Action
 
 ---@class EntryComponent : Component
 ---@field type "entry"
 ---@field text string
 ---@field tooltip? string
+---@field classes? string[]
 ---@field action? Action
+
+---@class ToggleButtonComponent : Component
+---@field type "togglebutton"
+---@field text string
+---@field tooltip? string
+---@field active? boolean
+---@field classes? string[]
+---@field action? Action
+
+---@class ToggleButtonData
+---@field text string
+---@field tooltip? string
+---@field active? boolean
+---@field classes? string[]
+---@field action? Action
+
+---@class ToggleButtonGroupComponent : Component
+---@field type "togglebuttongroup"
+---@field orientation ContainerOrientation
+---@field halign? Align
+---@field valign? Align
+---@field classes? string[]
+---@field buttons ToggleButtonData[]
 
 ---@class ContainerComponent : Component
 ---@field type "container"
 ---@field orientation ContainerOrientation
+---@field halign? Align
+---@field valign? Align
+---@field classes? string[]
 ---@field children Component[]
 
 ---@class Window

@@ -5,17 +5,29 @@ use crate::schema::{Align, Component, ContainerOrientation};
 
 pub(super) fn build_component(component: Component) -> gtk::Widget {
     match component {
-        Component::Label { text, tooltip } => {
+        Component::Label {
+            text,
+            tooltip,
+            classes,
+        } => {
             let mut builder = gtk::Label::builder().label(text);
             if let Some(tip) = tooltip {
                 builder = builder.tooltip_text(tip);
             }
             let lbl = builder.build();
+
+            if let Some(class_list) = classes {
+                for class in class_list {
+                    lbl.add_css_class(&class);
+                }
+            }
+
             lbl.upcast()
         }
         Component::Button {
             text,
             tooltip,
+            classes,
             action,
         } => {
             let mut builder = gtk::Button::builder().label(text);
@@ -23,6 +35,12 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
                 builder = builder.tooltip_text(tip);
             }
             let btn = builder.build();
+
+            if let Some(class_list) = classes {
+                for class in class_list {
+                    btn.add_css_class(&class);
+                }
+            }
 
             if let Some(action) = action {
                 btn.connect_clicked(move |_| {
@@ -35,6 +53,7 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
         Component::Entry {
             text,
             tooltip,
+            classes,
             action,
         } => {
             let mut builder = gtk::Entry::builder().text(text);
@@ -42,6 +61,12 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
                 builder = builder.tooltip_text(tip);
             }
             let entry = builder.build();
+
+            if let Some(class_list) = classes {
+                for class in class_list {
+                    entry.add_css_class(&class);
+                }
+            }
 
             if let Some(action) = action {
                 entry.connect_activate(move |entry| {
@@ -59,6 +84,12 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
                 builder = builder.tooltip_text(tip);
             }
             let toggle_btn = builder.build();
+
+            if let Some(class_list) = data.classes {
+                for class in class_list {
+                    toggle_btn.add_css_class(&class);
+                }
+            }
 
             if let Some(action) = data.action {
                 toggle_btn.connect_toggled(move |btn| {
@@ -99,6 +130,12 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
 
             let container = builder.build();
 
+            if let Some(class_list) = container_data.classes {
+                for class in class_list {
+                    container.add_css_class(&class);
+                }
+            }
+
             let mut group_leader: Option<gtk::ToggleButton> = None;
 
             for data in buttons {
@@ -109,6 +146,12 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
                     builder = builder.tooltip_text(tip);
                 }
                 let toggle_btn = builder.build();
+
+                if let Some(class_list) = data.classes {
+                    for class in class_list {
+                        toggle_btn.add_css_class(&class);
+                    }
+                }
 
                 // Set up grouping - all buttons join the first button's group
                 if let Some(ref leader) = group_leader {
@@ -161,6 +204,12 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
             }
 
             let container = builder.build();
+
+            if let Some(class_list) = container_data.classes {
+                for class in class_list {
+                    container.add_css_class(&class);
+                }
+            }
 
             for child in children {
                 let widget = build_component(child);
