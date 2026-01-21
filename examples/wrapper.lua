@@ -41,34 +41,13 @@
 ---Create a new window
 ---@param win_def Window The window definition
 ---@return nil
-local function new_window(win_def)
+function new_window(win_def)
 	window(win_def)
 end
 
--- Example usage with type checking:
-new_window({
-	title = "SMSH: Typed Wrapper Example",
-	enable_vim_keys = true,
-	enable_esc_as_exit = true,
-	present = true,
-	root = {
-		type = "container",
-		orientation = "vertical",
-		children = {
-			{
-				type = "label",
-				text = "Hello from typed wrapper!",
-				tooltip = "This is a label",
-			},
-			{
-				type = "button",
-				text = "Click me",
-				tooltip = "Press this button",
-				action = function()
-					print("Button clicked!")
-					os.exit(0)
-				end,
-			},
-		},
-	},
-})
+---Load a CSS file for styling
+---@param path string Path to the CSS file
+---@return nil
+function load_stylesheet(path)
+	load_css(path)
+end
