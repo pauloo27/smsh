@@ -51,20 +51,16 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
 
             entry.upcast()
         }
-        Component::ToggleButton {
-            text,
-            tooltip,
-            active,
-            group: _,
-            action,
-        } => {
-            let mut builder = gtk::ToggleButton::builder().label(text).active(active);
-            if let Some(tip) = tooltip {
+        Component::ToggleButton(data) => {
+            let mut builder = gtk::ToggleButton::builder()
+                .label(data.text)
+                .active(data.active);
+            if let Some(tip) = data.tooltip {
                 builder = builder.tooltip_text(tip);
             }
             let toggle_btn = builder.build();
 
-            if let Some(action) = action {
+            if let Some(action) = data.action {
                 toggle_btn.connect_toggled(move |btn| {
                     let state = if btn.is_active() { "true" } else { "false" };
                     let _ = action.callback.call::<()>(state.to_string());
@@ -73,20 +69,15 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
 
             toggle_btn.upcast()
         }
-        Component::Container {
-            orientation,
-            halign,
-            valign,
-            children,
-        } => {
-            let gtk_orientation = match orientation {
+        Component::ToggleButtonGroup { container: container_data, buttons } => {
+            let gtk_orientation = match container_data.orientation {
                 ContainerOrientation::Vertical => gtk::Orientation::Vertical,
                 ContainerOrientation::Horizontal => gtk::Orientation::Horizontal,
             };
 
             let mut builder = gtk::Box::builder().orientation(gtk_orientation);
 
-            if let Some(align) = halign {
+            if let Some(align) = container_data.halign {
                 let gtk_align = match align {
                     Align::Start => gtk::Align::Start,
                     Align::Center => gtk::Align::Center,
@@ -96,7 +87,70 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
                 builder = builder.halign(gtk_align);
             }
 
-            if let Some(align) = valign {
+            if let Some(align) = container_data.valign {
+                let gtk_align = match align {
+                    Align::Start => gtk::Align::Start,
+                    Align::Center => gtk::Align::Center,
+                    Align::End => gtk::Align::End,
+                    Align::Fill => gtk::Align::Fill,
+                };
+                builder = builder.valign(gtk_align);
+            }
+
+            let container = builder.build();
+
+            let mut group_leader: Option<gtk::ToggleButton> = None;
+
+            for data in buttons {
+                let mut builder = gtk::ToggleButton::builder()
+                    .label(data.text)
+                    .active(data.active);
+                if let Some(tip) = data.tooltip {
+                    builder = builder.tooltip_text(tip);
+                }
+                let toggle_btn = builder.build();
+
+                // Set up grouping - all buttons join the first button's group
+                if let Some(ref leader) = group_leader {
+                    toggle_btn.set_group(Some(leader));
+                } else {
+                    group_leader = Some(toggle_btn.clone());
+                }
+
+                if let Some(action) = data.action {
+                    toggle_btn.connect_toggled(move |btn| {
+                        let state = if btn.is_active() { "true" } else { "false" };
+                        let _ = action.callback.call::<()>(state.to_string());
+                    });
+                }
+
+                container.append(&toggle_btn);
+            }
+
+            container.upcast()
+        }
+        Component::Container {
+            container: container_data,
+            children,
+        } => {
+            let gtk_orientation = match container_data.orientation {
+                ContainerOrientation::Vertical => gtk::Orientation::Vertical,
+                ContainerOrientation::Horizontal => gtk::Orientation::Horizontal,
+            };
+
+            let mut builder = gtk::Box::builder().orientation(gtk_orientation);
+
+            if let Some(align) = container_data.halign {
+                let gtk_align = match align {
+                    Align::Start => gtk::Align::Start,
+                    Align::Center => gtk::Align::Center,
+                    Align::End => gtk::Align::End,
+                    Align::Fill => gtk::Align::Fill,
+                };
+                builder = builder.halign(gtk_align);
+            }
+
+            if let Some(align) = container_data.valign {
                 let gtk_align = match align {
                     Align::Start => gtk::Align::Start,
                     Align::Center => gtk::Align::Center,

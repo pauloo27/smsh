@@ -66,6 +66,67 @@ impl FromLua for ContainerOrientation {
 }
 
 #[derive(Debug, Clone)]
+pub struct ContainerData {
+    pub orientation: ContainerOrientation,
+    pub halign: Option<Align>,
+    pub valign: Option<Align>,
+}
+
+impl FromLua for ContainerData {
+    fn from_lua(value: Value, _: &Lua) -> mlua::Result<Self> {
+        match value {
+            Value::Table(t) => {
+                let orientation: ContainerOrientation = t.get("orientation")?;
+                let halign: Option<Align> = t.get("halign").ok();
+                let valign: Option<Align> = t.get("valign").ok();
+                Ok(ContainerData {
+                    orientation,
+                    halign,
+                    valign,
+                })
+            }
+            _ => Err(mlua::Error::FromLuaConversionError {
+                from: value.type_name(),
+                to: "ContainerData".to_string(),
+                message: Some("expected table".to_string()),
+            }),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ToggleButtonData {
+    pub text: String,
+    pub tooltip: Option<String>,
+    pub active: bool,
+    pub action: Option<Action>,
+}
+
+impl FromLua for ToggleButtonData {
+    fn from_lua(value: Value, _: &Lua) -> mlua::Result<Self> {
+        match value {
+            Value::Table(t) => {
+                let text: String = t.get("text")?;
+                let tooltip: Option<String> = t.get("tooltip").ok();
+                let active: bool = t.get("active").unwrap_or(false);
+                let action: Option<Action> = t.get("action").ok();
+                Ok(ToggleButtonData {
+                    text,
+                    tooltip,
+                    active,
+                    action,
+                })
+            }
+            _ => Err(mlua::Error::FromLuaConversionError {
+                from: value.type_name(),
+                to: "ToggleButtonData".to_string(),
+                message: Some("expected table".to_string()),
+            }),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum Component {
     Label {
         text: String,
@@ -81,23 +142,19 @@ pub enum Component {
         tooltip: Option<String>,
         action: Option<Action>,
     },
-    ToggleButton {
-        text: String,
-        tooltip: Option<String>,
-        active: bool,
-        group: Option<String>,
-        action: Option<Action>,
+    ToggleButton(ToggleButtonData),
+    ToggleButtonGroup {
+        container: ContainerData,
+        buttons: Vec<ToggleButtonData>,
     },
     Container {
-        orientation: ContainerOrientation,
-        halign: Option<Align>,
-        valign: Option<Align>,
+        container: ContainerData,
         children: Vec<Component>,
     },
 }
 
 impl FromLua for Component {
-    fn from_lua(value: Value, _: &Lua) -> mlua::Result<Self> {
+    fn from_lua(value: Value, lua: &Lua) -> mlua::Result<Self> {
         match value {
             Value::Table(t) => {
                 let type_str: String = t.get("type")?;
@@ -129,28 +186,19 @@ impl FromLua for Component {
                         })
                     }
                     "togglebutton" => {
-                        let text: String = t.get("text")?;
-                        let tooltip: Option<String> = t.get("tooltip").ok();
-                        let active: bool = t.get("active").unwrap_or(false);
-                        let group: Option<String> = t.get("group").ok();
-                        let action: Option<Action> = t.get("action").ok();
-                        Ok(Component::ToggleButton {
-                            text,
-                            tooltip,
-                            active,
-                            group,
-                            action,
-                        })
+                        let data = ToggleButtonData::from_lua(Value::Table(t.clone()), lua)?;
+                        Ok(Component::ToggleButton(data))
+                    }
+                    "togglebuttongroup" => {
+                        let container = ContainerData::from_lua(Value::Table(t.clone()), lua)?;
+                        let buttons: Vec<ToggleButtonData> = t.get("buttons")?;
+                        Ok(Component::ToggleButtonGroup { container, buttons })
                     }
                     "container" => {
-                        let orientation: ContainerOrientation = t.get("orientation")?;
-                        let halign: Option<Align> = t.get("halign").ok();
-                        let valign: Option<Align> = t.get("valign").ok();
+                        let container = ContainerData::from_lua(Value::Table(t.clone()), lua)?;
                         let children: Vec<Component> = t.get("children")?;
                         Ok(Component::Container {
-                            orientation,
-                            halign,
-                            valign,
+                            container,
                             children,
                         })
                     }
