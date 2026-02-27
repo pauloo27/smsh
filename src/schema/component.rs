@@ -99,7 +99,8 @@ impl FromLua for ContainerData {
 
 #[derive(Debug, Clone)]
 pub struct ToggleButtonData {
-    pub text: String,
+    pub text: Option<String>,
+    pub icon: Option<String>,
     pub tooltip: Option<String>,
     pub active: bool,
     pub classes: Option<Vec<String>>,
@@ -110,13 +111,15 @@ impl FromLua for ToggleButtonData {
     fn from_lua(value: Value, _: &Lua) -> mlua::Result<Self> {
         match value {
             Value::Table(t) => {
-                let text: String = t.get("text")?;
+                let text: Option<String> = t.get("text").ok();
+                let icon: Option<String> = t.get("icon").ok();
                 let tooltip: Option<String> = t.get("tooltip").ok();
                 let active: bool = t.get("active").unwrap_or(false);
                 let classes: Option<Vec<String>> = t.get("classes").ok();
                 let action: Option<Action> = t.get("action").ok();
                 Ok(ToggleButtonData {
                     text,
+                    icon,
                     tooltip,
                     active,
                     classes,
@@ -140,7 +143,8 @@ pub enum Component {
         classes: Option<Vec<String>>,
     },
     Button {
-        text: String,
+        text: Option<String>,
+        icon: Option<String>,
         tooltip: Option<String>,
         classes: Option<Vec<String>>,
         action: Option<Action>,
@@ -180,12 +184,14 @@ impl FromLua for Component {
                         })
                     }
                     "button" => {
-                        let text: String = t.get("text")?;
+                        let text: Option<String> = t.get("text").ok();
+                        let icon: Option<String> = t.get("icon").ok();
                         let tooltip: Option<String> = t.get("tooltip").ok();
                         let classes: Option<Vec<String>> = t.get("classes").ok();
                         let action: Option<Action> = t.get("action").ok();
                         Ok(Component::Button {
                             text,
+                            icon,
                             tooltip,
                             classes,
                             action,

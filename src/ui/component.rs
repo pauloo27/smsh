@@ -1,7 +1,42 @@
 use gtk::prelude::*;
 use gtk4 as gtk;
 
-use crate::schema::{Align, Component, ContainerOrientation};
+use crate::schema::{Align, Component, ContainerOrientation, ToggleButtonData};
+
+fn build_toggle_button(data: &ToggleButtonData) -> gtk::ToggleButton {
+    let toggle_btn = gtk::ToggleButton::builder().active(data.active).build();
+
+    match (&data.icon, &data.text) {
+        (Some(icon_name), Some(label)) => {
+            let hbox = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+            let image = gtk::Image::from_icon_name(icon_name);
+            let lbl = gtk::Label::new(Some(label));
+            hbox.append(&image);
+            hbox.append(&lbl);
+            toggle_btn.set_child(Some(&hbox));
+        }
+        (Some(icon_name), None) => {
+            let image = gtk::Image::from_icon_name(icon_name);
+            toggle_btn.set_child(Some(&image));
+        }
+        (None, Some(label)) => {
+            toggle_btn.set_label(label);
+        }
+        (None, None) => {}
+    }
+
+    if let Some(ref tip) = data.tooltip {
+        toggle_btn.set_tooltip_text(Some(tip.as_str()));
+    }
+
+    if let Some(ref class_list) = data.classes {
+        for class in class_list {
+            toggle_btn.add_css_class(class.as_str());
+        }
+    }
+
+    toggle_btn
+}
 
 pub(super) fn build_component(component: Component) -> gtk::Widget {
     match component {
@@ -26,15 +61,34 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
         }
         Component::Button {
             text,
+            icon,
             tooltip,
             classes,
             action,
         } => {
-            let mut builder = gtk::Button::builder().label(text);
-            if let Some(tip) = tooltip {
-                builder = builder.tooltip_text(tip);
+            let btn = gtk::Button::new();
+
+            match (&icon, &text) {
+                (Some(icon_name), Some(label)) => {
+                    let hbox = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+                    let image = gtk::Image::from_icon_name(icon_name);
+                    let lbl = gtk::Label::new(Some(label));
+                    hbox.append(&image);
+                    hbox.append(&lbl);
+                    btn.set_child(Some(&hbox));
+                }
+                (Some(icon_name), None) => {
+                    btn.set_icon_name(icon_name);
+                }
+                (None, Some(label)) => {
+                    btn.set_label(label);
+                }
+                (None, None) => {}
             }
-            let btn = builder.build();
+
+            if let Some(tip) = tooltip {
+                btn.set_tooltip_text(Some(&tip));
+            }
 
             if let Some(class_list) = classes {
                 for class in class_list {
@@ -77,19 +131,7 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
             entry.upcast()
         }
         Component::ToggleButton(data) => {
-            let mut builder = gtk::ToggleButton::builder()
-                .label(data.text)
-                .active(data.active);
-            if let Some(tip) = data.tooltip {
-                builder = builder.tooltip_text(tip);
-            }
-            let toggle_btn = builder.build();
-
-            if let Some(class_list) = data.classes {
-                for class in class_list {
-                    toggle_btn.add_css_class(&class);
-                }
-            }
+            let toggle_btn = build_toggle_button(&data);
 
             if let Some(action) = data.action {
                 toggle_btn.connect_toggled(move |btn| {
@@ -139,19 +181,7 @@ pub(super) fn build_component(component: Component) -> gtk::Widget {
             let mut group_leader: Option<gtk::ToggleButton> = None;
 
             for data in buttons {
-                let mut builder = gtk::ToggleButton::builder()
-                    .label(data.text)
-                    .active(data.active);
-                if let Some(tip) = data.tooltip {
-                    builder = builder.tooltip_text(tip);
-                }
-                let toggle_btn = builder.build();
-
-                if let Some(class_list) = data.classes {
-                    for class in class_list {
-                        toggle_btn.add_css_class(&class);
-                    }
-                }
+                let toggle_btn = build_toggle_button(&data);
 
                 // Set up grouping - all buttons join the first button's group
                 if let Some(ref leader) = group_leader {

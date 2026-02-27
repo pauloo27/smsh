@@ -14,7 +14,8 @@
 
 ---@class ButtonComponent : Component
 ---@field type "button"
----@field text string
+---@field text? string
+---@field icon? string
 ---@field tooltip? string
 ---@field classes? string[]
 ---@field action? Action
@@ -28,14 +29,16 @@
 
 ---@class ToggleButtonComponent : Component
 ---@field type "togglebutton"
----@field text string
+---@field text? string
+---@field icon? string
 ---@field tooltip? string
 ---@field active? boolean
 ---@field classes? string[]
 ---@field action? Action
 
 ---@class ToggleButtonData
----@field text string
+---@field text? string
+---@field icon? string
 ---@field tooltip? string
 ---@field active? boolean
 ---@field classes? string[]
